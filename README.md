@@ -81,7 +81,7 @@ etl.config do |etl|
     # For example:
     #
     etl.query %[
-      REPLACE INTO some_database.some_destination_table
+      REPLACE INTO some_database.some_destination_table (user_id, created_date, total_amount)
       SELECT
           user_id
         , DATE(created_at) AS created_date
@@ -90,7 +90,7 @@ etl.config do |etl|
         some_database.some_source_table sst
       GROUP BY
           sst.user_id
-        , sst.DATE(created_at)]
+        , DATE(sst.created_at)]
   end
 
   etl.after_etl do |etl|
