@@ -309,6 +309,13 @@ Note that `#etl` executes `#start` and `#stop` once and memoizes the result for
 each. It then begins to iterate from what `#start` evaluated to up until what `#stop`
 evaluated to by what `#step` evaluates to.
 
+## Examples
+
+There are two examples found in `./examples` that demonstrate the basic ETL and
+iteration ETL. Each file uses the [mysql2](https://github.com/brianmario/mysql2)
+gem and reads / writes data to localhost using the root user with no password.
+Adjust as needed.
+
 ## Logger Details
 
 A logger must support two methods: `#info` and `#warn`.
