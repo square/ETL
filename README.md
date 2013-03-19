@@ -50,13 +50,12 @@ etl.config do |etl|
     #
     etl.query %[
       CREATE TABLE IF NOT EXISTS some_database.some_destination_table (
-        user_id INT UNSIGNED NOT NULL,
-        created_date DATE NOT NULL,
-        total_amount INT SIGNED NOT NULL,
-        message VARCHAR(100) DEFAULT NULL,
-        PRIMARY KEY (user_id),
-        KEY (user_id, created_date),
-        KEY (created_date)
+          user_id INT UNSIGNED NOT NULL
+        , created_date DATE NOT NULL
+        , total_amount INT SIGNED NOT NULL
+        , message VARCHAR(100) DEFAULT NULL
+        , PRIMARY KEY (user_id, created_date)
+        , KEY (created_date)
       )]
   end
 
@@ -81,8 +80,11 @@ etl.config do |etl|
     # For example:
     #
     etl.query %[
-      REPLACE INTO some_database.some_destination_table (user_id, created_date, total_amount)
-      SELECT
+      REPLACE INTO some_database.some_destination_table (
+          user_id
+        , created_date
+        , total_amount
+      ) SELECT
           user_id
         , DATE(created_at) AS created_date
         , SUM(amount) AS total_amount
@@ -142,13 +144,12 @@ etl.config do |etl|
     #
     etl.query %[
       CREATE TABLE IF NOT EXISTS some_database.some_destination_table (
-        user_id INT UNSIGNED NOT NULL,
-        created_date DATE NOT NULL,
-        total_amount INT SIGNED NOT NULL,
-        message VARCHAR(100) DEFAULT NULL,
-        PRIMARY KEY (user_id),
-        KEY (user_id, created_date),
-        KEY (created_date)
+          user_id INT UNSIGNED NOT NULL
+        , created_date DATE NOT NULL
+        , total_amount INT SIGNED NOT NULL
+        , message VARCHAR(100) DEFAULT NULL
+        , PRIMARY KEY (user_id, created_date)
+        , KEY (created_date)
       )]
   end
 
@@ -177,8 +178,11 @@ etl.config do |etl|
     #
     # As an example:
     #
+    # Note that we cast the default date as a DATE. If we don't, it will be
+    # treated as a string and our iterator will fail under the hood when testing
+    # if it is complete.
     res = etl.query %[
-      SELECT COALESCE(MAX(created_date), '1970-01-01') AS the_max
+      SELECT COALESCE(MAX(created_date), DATE('2010-01-01')) AS the_max
       FROM some_database.some_destination_table]
 
     res.to_a.first['the_max']
@@ -195,7 +199,7 @@ etl.config do |etl|
     #
     # As an example, to iterate 7 days at a time:
     #
-    7.days
+    7
   end
 
   etl.stop do |etl|
@@ -237,24 +241,33 @@ etl.config do |etl|
     # As a first example, to iterate over a set of ids:
     #
     #   etl.query %[
-    #     REPLACE INTO some_database.some_destination_table
-    #     SELECT
-    #         user_id
-    #       , SUM(amount) AS total_amount
+    #     REPLACE INTO some_database.some_destination_table (
+    #         created_date
+    #       , user_id
+    #       , total_amount
+    #     ) SELECT
+    #         DATE(sst.created_at) AS created_date
+    #       , sst.user_id
+    #       , SUM(sst.amount) AS total_amount
     #     FROM
     #       some_database.some_source_table sst
     #     WHERE
     #       sst.user_id > #{lbound} AND sst.user_id <= #{ubound}
     #     GROUP BY
-    #       sst.user_id]
+    #         DATE(sst.created_at)
+    #       , sst.user_id]
     #
     # To "window" a SQL query using dates:
     #
     etl.query %[
-      REPLACE INTO some_database.some_destination_table
-      SELECT
-          DATE(created_at)
-        , SUM(amount) AS total_amount
+      REPLACE INTO some_database.some_destination_table (
+          created_date
+        , user_id
+        , total_amount
+      ) SELECT
+          DATE(sst.created_at) AS created_date
+        , sst.user_id
+        , SUM(sst.amount) AS total_amount
       FROM
         some_database.some_source_table sst
       WHERE
@@ -262,7 +275,8 @@ etl.config do |etl|
         -- This is is required when dealing with dates / datetimes
         sst.created_at >= '#{lbound}' AND sst.created_at < '#{ubound}'
       GROUP BY
-        sst.user_id]
+          DATE(sst.created_at)
+        , sst.user_id]
 
     # Note that there is no sql sanitization here so there is *potential* for SQL
     # injection. That being said you'll likely be using this gem in an internal
