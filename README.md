@@ -35,6 +35,16 @@ To run a basic ETL that is composed of sequential SQL statements, start by
 creating a new ETL instance:
 
 ```ruby
+# setting connection at the class level
+ETL.connection = connection
+
+etl = ETL.new(description: "a description of what this ETL does")
+```
+
+or
+
+```ruby
+# setting connection at the instance level
 etl = ETL.new(description: "a description of what this ETL does",
               connection:  connection)
 ```
