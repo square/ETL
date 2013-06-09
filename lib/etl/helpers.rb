@@ -23,7 +23,7 @@ class ETL
         caster = ->(str) { "DATE(#{str})" }
       end
 
-      max_sql_clause = "COALESCE(MAX(#{table}.#{column}), #{default_value})"
+      max_sql_clause = "IFNULL(MAX(#{table}.#{column}), #{default_value})"
       max_sql_clause = caster.(max_sql_clause) if caster
 
       sql = <<-EOS
