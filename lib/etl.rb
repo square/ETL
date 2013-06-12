@@ -24,9 +24,21 @@ class ETL
     :stop
   ]
 
+  def self.connection= connection
+    @connection = connection
+  end
+
+  def self.connection
+    @connection
+  end
+
+  def self.defaults
+    {connection: @connection}
+  end
+
   def initialize attributes = {}
-    attributes.keys.uniq.each do |attribute|
-      self.send "#{attribute}=", attributes[attribute]
+    self.class.defaults.merge(attributes).each do |key, value|
+      self.send "#{key}=", value
     end
     default_logger! unless attributes.keys.include?(:logger)
   end
