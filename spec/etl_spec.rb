@@ -38,6 +38,25 @@ end
 describe ETL do
   let(:logger) { nil }
 
+  describe ".connection=" do
+    let(:class_level_connection) { stub('class_level_connection') }
+
+    it "sets the #connection for all instances" do
+      ETL.connection = class_level_connection
+      etl = ETL.new
+      expect(etl.connection).to eq class_level_connection
+    end
+
+    it "allows instance-level overrides" do
+      instance_level_connection = stub('instance_level_connection')
+      ETL.connection = class_level_connection
+      etl_with_connection_override = ETL.new connection: instance_level_connection
+      etl = ETL.new
+      expect(etl.connection).to eq class_level_connection
+      expect(etl_with_connection_override.connection).to eq instance_level_connection
+    end
+  end
+
   describe "#logger=" do
     let(:etl) { described_class.new connection: stub }
 
