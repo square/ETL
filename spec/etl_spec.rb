@@ -38,6 +38,94 @@ end
 describe ETL do
   let(:logger) { nil }
 
+  describe "deprecations" do
+    let(:etl) { described_class.new }
+
+    context "#ensure_destination" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.ensure_destination {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #ensure_destination will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.ensure_destination('some arg') {}
+      end
+    end
+
+    context "#before_etl" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.before_etl {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #before_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.before_etl('some arg') {}
+      end
+    end
+
+    context "#start" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.start {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #start will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.start('some arg') {}
+      end
+    end
+
+    context "#step" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.step {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #step will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.step('some arg') {}
+      end
+    end
+
+    context "#stop" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.stop {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #stop will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.stop('some arg') {}
+      end
+    end
+
+    context "#etl" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.etl {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.etl('some arg') {}
+      end
+    end
+
+    context "#after_etl" do
+      it "does not warn when no args are passed" do
+        etl.should_receive(:warn).never
+        etl.after_etl {}
+      end
+
+      it "warns when args are passed that this is deprecated" do
+        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #after_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        etl.after_etl('some arg') {}
+      end
+    end
+  end
+
   describe ".connection=" do
     let(:class_level_connection) { stub('class_level_connection') }
 
