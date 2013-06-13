@@ -69,7 +69,7 @@ class ETL
   # for any given variable included in the method name's array
   (ORDERED_ETL_OPERATIONS - [:etl]).each do |method|
     define_method method do |*args, &block|
-      warn_args_deprecated_for method unless args.empty?
+      warn_args_will_be_deprecated_for method unless args.empty?
 
       if block
         instance_variable_set("@#{method}", block)
@@ -81,7 +81,7 @@ class ETL
   end
 
   def etl *args, &block
-    warn_args_deprecated_for :etl unless args.empty?
+    warn_args_will_be_deprecated_for :etl unless args.empty?
 
     if block_given?
       @etl = block
@@ -118,7 +118,7 @@ class ETL
   # for any given variable included in the method name's array
   ITERATOR_OPERATIONS.each do |method|
     define_method method do |*args, &block|
-      warn_args_deprecated_for method unless args.empty?
+      warn_args_will_be_deprecated_for method unless args.empty?
 
       if block
         instance_variable_set("@_#{method}_block", block)
@@ -148,7 +148,7 @@ class ETL
 
 private
 
-  def warn_args_deprecated_for method
+  def warn_args_will_be_deprecated_for method
     warn "DEPRECATED: passing arguments to ##{method} will be removed in an upcoming release and will raise an exception. Please remove this from your code."
   end
 
