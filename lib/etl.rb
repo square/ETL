@@ -146,6 +146,14 @@ class ETL
     end
   end
 
+  def info data = {}
+    logger.info data.merge(emitter: self) if logger?
+  end
+
+  def debug data = {}
+    logger.debug data.merge(emitter: self) if logger?
+  end
+
 private
 
   def warn_args_will_be_deprecated_for method
@@ -164,14 +172,6 @@ private
 
   def logger?
     !!@logger
-  end
-
-  def info data = {}
-    logger.info data.merge(emitter: self) if logger?
-  end
-
-  def debug data = {}
-    logger.debug data.merge(emitter: self) if logger?
   end
 
   def default_logger
