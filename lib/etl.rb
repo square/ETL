@@ -177,17 +177,20 @@ private
   def default_logger
     ::Logger.new(STDOUT).tap do |logger|
       logger.formatter = proc do |severity, datetime, progname, msg|
-        lead =  "[#{datetime}] #{severity} #{msg[:event_type]}"
-        desc =  "\"#{msg[:emitter].description || 'no description given'}\""
-        desc += " (object #{msg[:emitter].object_id})"
+        event_details =  "[#{datetime}] #{severity} #{msg[:event_type]}"
+
+        emitter_details =  "\"#{msg[:emitter].description || 'no description given'}\""
+        emitter_details += " (object #{msg[:emitter].object_id})"
+
+        leadin = "#{event_details} for #{emitter_details}"
 
         case msg[:event_type]
         when :query_start
-          "#{lead} for #{desc}\n#{msg[:sql]}\n"
+          "#{leadin}\n#{msg[:sql]}\n"
         when :query_complete
-          "#{lead} for #{desc} runtime: #{msg[:runtime]}s\n"
+          "#{leadin} runtime: #{msg[:runtime]}s\n"
         else
-          "#{msg}"
+          "#{leadin}: #{msg[:message]}\n"
         end
       end
     end
