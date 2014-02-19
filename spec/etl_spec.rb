@@ -127,7 +127,7 @@ describe ETL do
   end
 
   describe ".connection=" do
-    let(:class_level_connection) { stub('class_level_connection') }
+    let(:class_level_connection) { double('class_level_connection') }
 
     it "sets the #connection for all instances" do
       ETL.connection = class_level_connection
@@ -136,7 +136,7 @@ describe ETL do
     end
 
     it "allows instance-level overrides" do
-      instance_level_connection = stub('instance_level_connection')
+      instance_level_connection = double('instance_level_connection')
       ETL.connection = class_level_connection
       etl_with_connection_override = ETL.new connection: instance_level_connection
       etl = ETL.new
@@ -146,10 +146,10 @@ describe ETL do
   end
 
   describe "#logger=" do
-    let(:etl) { described_class.new connection: stub }
+    let(:etl) { described_class.new connection: double }
 
     it 'assigns' do
-      logger = stub
+      logger = double
       etl.logger = logger
       etl.logger.should == logger
     end
@@ -322,7 +322,7 @@ describe ETL do
   end
 
   describe '#run with operations specified for exclusion' do
-    let(:connection) { stub }
+    let(:connection) { double }
     let(:etl)        { described_class.new connection: connection, logger: logger }
 
     it "does not call the specified method" do
