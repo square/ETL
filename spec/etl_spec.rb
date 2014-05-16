@@ -43,84 +43,84 @@ describe ETL do
 
     context "#ensure_destination" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.ensure_destination {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #ensure_destination will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #ensure_destination will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.ensure_destination('some arg') {}
       end
     end
 
     context "#before_etl" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.before_etl {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #before_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #before_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.before_etl('some arg') {}
       end
     end
 
     context "#start" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.start {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #start will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #start will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.start('some arg') {}
       end
     end
 
     context "#step" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.step {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #step will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #step will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.step('some arg') {}
       end
     end
 
     context "#stop" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.stop {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #stop will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #stop will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.stop('some arg') {}
       end
     end
 
     context "#etl" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.etl {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.etl('some arg') {}
       end
     end
 
     context "#after_etl" do
       it "does not warn when no args are passed" do
-        etl.should_receive(:warn).never
+        expect(etl).to receive(:warn).never
         etl.after_etl {}
       end
 
       it "warns when args are passed that this is deprecated" do
-        etl.should_receive(:warn).with("DEPRECATED: passing arguments to #after_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
+        expect(etl).to receive(:warn).with("DEPRECATED: passing arguments to #after_etl will be removed in an upcoming release and will raise an exception. Please remove this from your code.")
         etl.after_etl('some arg') {}
       end
     end
@@ -151,7 +151,7 @@ describe ETL do
     it 'assigns' do
       logger = double
       etl.logger = logger
-      etl.logger.should == logger
+      expect(etl.logger).to eq(logger)
     end
   end
 
@@ -198,41 +198,41 @@ describe ETL do
     after { connection.close }
 
     it "finds the max for dates" do
-      etl.max_for(database: :etl_test,
+      expect(etl.max_for(database: :etl_test,
                   table:    :etl_source,
-                  column:   :the_date).should == Date.parse('2012-01-02')
+                  column:   :the_date)).to eq(Date.parse('2012-01-02'))
     end
 
     it "defaults to the beginning of time date when a max date cannot be found" do
-      etl.max_for(database: :etl_test,
+      expect(etl.max_for(database: :etl_test,
                   table:    :etl_source,
-                  column:   :the_null_date).should == Date.parse('1970-01-01')
+                  column:   :the_null_date)).to eq(Date.parse('1970-01-01'))
     end
 
     it "defaults to the specified default floor when a max date cannot be found" do
-      etl.max_for(database:      :etl_test,
+      expect(etl.max_for(database:      :etl_test,
                   table:         :etl_source,
                   column:        :the_null_date,
-                  default_floor: '2011-01-01').should == Date.parse('2011-01-01')
+                  default_floor: '2011-01-01')).to eq(Date.parse('2011-01-01'))
     end
 
     it "finds the max for datetimes" do
-      etl.max_for(database: :etl_test,
+      expect(etl.max_for(database: :etl_test,
                   table:    :etl_source,
-                  column:   :the_time_at).should == Date.parse('2012-01-02')
+                  column:   :the_time_at)).to eq(Date.parse('2012-01-02'))
     end
 
     it "defaults to the beginning of time when a max datetime cannot be found" do
-      etl.max_for(database: :etl_test,
+      expect(etl.max_for(database: :etl_test,
                   table:    :etl_source,
-                  column:   :the_null_time_at).should == Date.parse('1970-01-01 00:00:00')
+                  column:   :the_null_time_at)).to eq(Date.parse('1970-01-01 00:00:00'))
     end
 
     it "defaults to the specified default floor when a max datetime cannot be found" do
-      etl.max_for(database:      :etl_test,
+      expect(etl.max_for(database:      :etl_test,
                   table:         :etl_source,
                   column:        :the_null_time_at,
-                  default_floor: '2011-01-01 00:00:00').should == Date.parse('2011-01-01 00:00:00')
+                  default_floor: '2011-01-01 00:00:00')).to eq(Date.parse('2011-01-01 00:00:00'))
     end
 
     it "raises an error if a non-standard column is supplied with no default floor" do
@@ -244,10 +244,10 @@ describe ETL do
     end
 
     it "finds the max for a non-standard column, using the default floor" do
-      etl.max_for(database:      :etl_test,
+      expect(etl.max_for(database:      :etl_test,
                   table:         :etl_source,
                   column:        :amount,
-                  default_floor: 0).should == 100
+                  default_floor: 0)).to eq(100)
     end
   end
 
@@ -310,14 +310,14 @@ describe ETL do
 
       etl.run
 
-      connection
+      expect(connection
         .query("SELECT * FROM etl_destination ORDER BY total_amount DESC")
-        .to_a
-        .should == [
+        .to_a)
+        .to eq([
           {'name' => 'SUPER Jack', 'total_amount' => 120},
           {'name' => 'Jeff',       'total_amount' => 110},
           {'name' => 'Nick',       'total_amount' => 90},
-          {'name' => 'Ryan',       'total_amount' => 50}]
+          {'name' => 'Ryan',       'total_amount' => 50}])
     end
   end
 
@@ -327,7 +327,7 @@ describe ETL do
 
     it "does not call the specified method" do
       etl.ensure_destination {}
-      etl.should_not_receive(:ensure_destination)
+      expect(etl).not_to receive(:ensure_destination)
       etl.run except: :ensure_destination
     end
   end
@@ -387,16 +387,16 @@ describe ETL do
 
         etl.run
 
-        connection
+        expect(connection
           .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a
-          .should == [
+          .to_a)
+          .to eq([
             {'id' => 1, 'name' => 'SUPER Jeff', 'amount' => 100},
             {'id' => 2, 'name' => 'Ryan',       'amount' => 50},
             {'id' => 3, 'name' => 'Jack',       'amount' => 75},
             {'id' => 4, 'name' => 'Jeff',       'amount' => 10},
             {'id' => 5, 'name' => 'Jack',       'amount' => 45},
-            {'id' => 7, 'name' => 'Nick',       'amount' => 90}]
+            {'id' => 7, 'name' => 'Nick',       'amount' => 90}])
       end
     end
 
@@ -445,12 +445,12 @@ describe ETL do
 
         etl.run
 
-        connection
+        expect(connection
           .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a.should == [
+          .to_a).to eq([
             {'id' => 4, 'name' => 'Jeff', 'amount' => 10},
             {'id' => 5, 'name' => 'Jack', 'amount' => 45},
-            {'id' => 7, 'name' => 'Nick', 'amount' => 90}]
+            {'id' => 7, 'name' => 'Nick', 'amount' => 90}])
       end
     end
 
@@ -524,16 +524,16 @@ describe ETL do
 
         etl.run
 
-        connection
+        expect(connection
           .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a
-          .should == [
+          .to_a)
+          .to eq([
             {'id' => 1,  'name' => 'Jeff', 'amount' => 100},
             {'id' => 2,  'name' => 'Ryan', 'amount' => 50},
             {'id' => 13, 'name' => 'Jack', 'amount' => 75},
             {'id' => 14, 'name' => 'Jeff', 'amount' => 10},
             {'id' => 15, 'name' => 'Jack', 'amount' => 45},
-            {'id' => 17, 'name' => 'Nick', 'amount' => 90}]
+            {'id' => 17, 'name' => 'Nick', 'amount' => 90}])
       end
     end
 
@@ -612,7 +612,7 @@ describe ETL do
 
         etl.run
 
-        connection
+        expect(connection
           .query(%[
             SELECT
                 the_date
@@ -623,13 +623,13 @@ describe ETL do
             ORDER BY
                 the_date ASC
               , name ASC
-          ]).to_a
-            .should == [
+          ]).to_a)
+            .to eq([
               {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jack', 'total_amount' => 75},
               {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jeff', 'total_amount' => 110},
               {'the_date' => Date.parse('2012-01-01'), 'name' => 'Ryan', 'total_amount' => 50},
               {'the_date' => Date.parse('2012-01-02'), 'name' => 'Jack', 'total_amount' => 45},
-              {'the_date' => Date.parse('2012-01-02'), 'name' => 'Nick', 'total_amount' => 90}]
+              {'the_date' => Date.parse('2012-01-02'), 'name' => 'Nick', 'total_amount' => 90}])
       end
     end
 
@@ -705,7 +705,7 @@ describe ETL do
 
         etl.run
 
-        connection
+        expect(connection
           .query(%[
             SELECT
                 the_datetime
@@ -716,13 +716,13 @@ describe ETL do
             ORDER BY
                 the_datetime ASC
               , name ASC
-          ]).to_a
-            .should == [
+          ]).to_a)
+            .to eq([
               {'the_datetime' => Time.parse('2012-01-01 00:01:00'), 'name' => 'Ryan', 'amount' => 50},
               {'the_datetime' => Time.parse('2012-01-01 00:01:01'), 'name' => 'Jack', 'amount' => 75},
               {'the_datetime' => Time.parse('2012-01-01 00:01:02'), 'name' => 'Jeff', 'amount' => 10},
               {'the_datetime' => Time.parse('2012-01-02 00:02:00'), 'name' => 'Jack', 'amount' => 45},
-              {'the_datetime' => Time.parse('2012-01-02 00:02:02'), 'name' => 'Nick', 'amount' => 90}]
+              {'the_datetime' => Time.parse('2012-01-02 00:02:02'), 'name' => 'Nick', 'amount' => 90}])
       end
     end
   end
