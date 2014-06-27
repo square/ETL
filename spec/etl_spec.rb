@@ -3,7 +3,11 @@ require 'active_support/time'
 require 'etl'
 
 def test_connection
-  Mysql2::Client.new host: 'localhost', username: 'root', database: 'etl_test'
+  Mysql2::Client.new(
+    host: 'localhost',
+    username: 'root',
+    database: 'etl_test'
+  )
 end
 
 def reset_test_env connection, &block
@@ -19,7 +23,9 @@ def reset_test_env connection, &block
           id INT NOT NULL
         , name VARCHAR(10)
         , amount INT(11) DEFAULT 0
-        , PRIMARY KEY (id))]
+        , PRIMARY KEY (id)
+      )
+    ]
 
     connection.query %[
       INSERT INTO etl_test.etl_source (id, name, amount)
@@ -132,16 +138,16 @@ describe ETL do
     it "sets the #connection for all instances" do
       ETL.connection = class_level_connection
       etl = ETL.new
-      expect(etl.connection).to eq class_level_connection
+      expect(etl.connection).to eq(class_level_connection)
     end
 
     it "allows instance-level overrides" do
       instance_level_connection = double('instance_level_connection')
       ETL.connection = class_level_connection
-      etl_with_connection_override = ETL.new connection: instance_level_connection
+      etl_with_connection_override = ETL.new(connection: instance_level_connection)
       etl = ETL.new
       expect(etl.connection).to eq class_level_connection
-      expect(etl_with_connection_override.connection).to eq instance_level_connection
+      expect(etl_with_connection_override.connection).to eq(instance_level_connection)
     end
   end
 
@@ -157,7 +163,7 @@ describe ETL do
 
   describe '#max_for' do
     let(:connection) { test_connection }
-    let(:etl)        { described_class.new connection: connection, logger: logger }
+    let(:etl) { described_class.new(connection: connection, logger: logger) }
 
     before do
       client = Mysql2::Client.new host: 'localhost', username: 'root'
@@ -173,7 +179,9 @@ describe ETL do
           , the_null_date DATE DEFAULT NULL
           , the_time_at DATETIME DEFAULT NULL
           , the_null_time_at DATETIME DEFAULT NULL
-          , PRIMARY KEY (id))]
+          , PRIMARY KEY (id)
+        )
+      ]
 
       client.query %[
         INSERT INTO etl_source (
@@ -190,7 +198,8 @@ describe ETL do
           , ('Jeff',  10, '2012-01-01', NULL, '2012-01-01 00:00:00', NULL)
           , ('Jack',  45, '2012-01-01', NULL, '2012-01-01 00:00:00', NULL)
           , ('Nick', -90, '2012-01-01', NULL, '2012-01-01 00:00:00', NULL)
-          , ('Nick',  90, '2012-01-01', NULL, '2012-01-01 00:00:00', NULL)]
+          , ('Nick',  90, '2012-01-01', NULL, '2012-01-01 00:00:00', NULL)
+      ]
 
       client.close
     end
@@ -199,64 +208,90 @@ describe ETL do
 
     it "finds the max for dates" do
       expect(etl.max_for(database: :etl_test,
-                  table:    :etl_source,
-                  column:   :the_date)).to eq(Date.parse('2012-01-02'))
+             table: :etl_source,
+             column: :the_date)).to eq(Date.parse('2012-01-02'))
     end
 
     it "defaults to the beginning of time date when a max date cannot be found" do
-      expect(etl.max_for(database: :etl_test,
-                  table:    :etl_source,
-                  column:   :the_null_date)).to eq(Date.parse('1970-01-01'))
+      expect(
+        etl.max_for(
+          database: :etl_test,
+          table: :etl_source,
+          column: :the_null_date
+        )
+      ).to eq(Date.parse('1970-01-01'))
     end
 
     it "defaults to the specified default floor when a max date cannot be found" do
-      expect(etl.max_for(database:      :etl_test,
-                  table:         :etl_source,
-                  column:        :the_null_date,
-                  default_floor: '2011-01-01')).to eq(Date.parse('2011-01-01'))
+      expect(
+        etl.max_for(
+          database: :etl_test,
+          table: :etl_source,
+          column: :the_null_date,
+          default_floor: '2011-01-01'
+        )
+      ).to eq(Date.parse('2011-01-01'))
     end
 
     it "finds the max for datetimes" do
-      expect(etl.max_for(database: :etl_test,
-                  table:    :etl_source,
-                  column:   :the_time_at)).to eq(Date.parse('2012-01-02'))
+      expect(
+        etl.max_for(
+          database: :etl_test,
+          table: :etl_source,
+          column: :the_time_at
+        )
+      ).to eq(Date.parse('2012-01-02'))
     end
 
     it "defaults to the beginning of time when a max datetime cannot be found" do
-      expect(etl.max_for(database: :etl_test,
-                  table:    :etl_source,
-                  column:   :the_null_time_at)).to eq(Date.parse('1970-01-01 00:00:00'))
+      expect(
+        etl.max_for(
+          database: :etl_test,
+          table: :etl_source,
+          column: :the_null_time_at
+        )
+      ).to eq(Date.parse('1970-01-01 00:00:00'))
     end
 
     it "defaults to the specified default floor when a max datetime cannot be found" do
-      expect(etl.max_for(database:      :etl_test,
-                  table:         :etl_source,
-                  column:        :the_null_time_at,
-                  default_floor: '2011-01-01 00:00:00')).to eq(Date.parse('2011-01-01 00:00:00'))
+      expect(
+        etl.max_for(
+          database: :etl_test,
+             table: :etl_source,
+             column: :the_null_time_at,
+             default_floor: '2011-01-01 00:00:00'
+        )
+      ).to eq(Date.parse('2011-01-01 00:00:00'))
     end
 
     it "raises an error if a non-standard column is supplied with no default floor" do
       expect {
-        etl.max_for database: :etl_test,
-                    table:    :etl_source,
-                    column:   :amount
+        etl.max_for(
+          database: :etl_test,
+          table:    :etl_source,
+          column:   :amount
+        )
       }.to raise_exception
     end
 
     it "finds the max for a non-standard column, using the default floor" do
-      expect(etl.max_for(database:      :etl_test,
-                  table:         :etl_source,
-                  column:        :amount,
-                  default_floor: 0)).to eq(100)
+      expect(
+        etl.max_for(
+          database: :etl_test,
+          table: :etl_source,
+          column: :amount,
+          default_floor: 0
+        )
+      ).to eq(100)
     end
   end
 
   describe '#run' do
     let(:connection) { test_connection }
-    let(:etl)        { described_class.new connection: connection, logger: logger }
+    let(:etl) { described_class.new connection: connection, logger: logger }
 
     before do
-      client = Mysql2::Client.new host: 'localhost', username: 'root'
+      client = Mysql2::Client.new(host: 'localhost', username: 'root')
       client.query %[DROP DATABASE IF EXISTS etl_test]
       client.query %[CREATE DATABASE etl_test]
       client.query %[USE etl_test]
@@ -265,7 +300,9 @@ describe ETL do
             id INT(11) NOT NULL AUTO_INCREMENT
           , name VARCHAR(10)
           , amount INT(11) DEFAULT 0
-          , PRIMARY KEY (id))]
+          , PRIMARY KEY (id)
+        )
+      ]
 
       client.query %[
         INSERT INTO etl_source (name, amount)
@@ -276,7 +313,8 @@ describe ETL do
           ('Jeff',  10),
           ('Jack',  45),
           ('Nick', -90),
-          ('Nick',  90)]
+          ('Nick',  90)
+      ]
 
       client.close
     end
@@ -285,9 +323,11 @@ describe ETL do
       etl.ensure_destination do |etl|
         etl.query %[
           CREATE TABLE IF NOT EXISTS etl_destination (
-            name VARCHAR(10)
-          , total_amount INT(11) DEFAULT 0
-          , PRIMARY KEY (name))]
+              name VARCHAR(10)
+            , total_amount INT(11) DEFAULT 0
+            , PRIMARY KEY (name)
+          )
+        ]
       end
 
       etl.before_etl do |etl|
@@ -298,44 +338,50 @@ describe ETL do
         etl.query %[
           REPLACE INTO etl_destination
           SELECT name, SUM(amount) FROM etl_source
-          GROUP BY name]
+          GROUP BY name
+        ]
       end
 
       etl.after_etl do |etl|
         etl.query %[
           UPDATE etl_destination
           SET name = CONCAT("SUPER ", name)
-          WHERE total_amount > 115]
+          WHERE total_amount > 115
+        ]
       end
 
       etl.run
 
-      expect(connection
-        .query("SELECT * FROM etl_destination ORDER BY total_amount DESC")
-        .to_a)
-        .to eq([
+      expect(
+        connection
+          .query("SELECT * FROM etl_destination ORDER BY total_amount DESC")
+          .to_a
+      ).to eq(
+        [
           {'name' => 'SUPER Jack', 'total_amount' => 120},
           {'name' => 'Jeff',       'total_amount' => 110},
           {'name' => 'Nick',       'total_amount' => 90},
-          {'name' => 'Ryan',       'total_amount' => 50}])
+          {'name' => 'Ryan',       'total_amount' => 50}
+        ]
+      )
     end
   end
 
   describe '#run with operations specified for exclusion' do
     let(:connection) { double }
-    let(:etl)        { described_class.new connection: connection, logger: logger }
+    let(:etl) { described_class.new connection: connection, logger: logger }
 
     it "does not call the specified method" do
       etl.ensure_destination {}
       expect(etl).not_to receive(:ensure_destination)
-      etl.run except: :ensure_destination
+      etl.run(except: :ensure_destination)
     end
   end
 
   context "with iteration" do
     describe '#run over full table' do
       let(:connection) { test_connection }
-      let(:etl)        { described_class.new connection: connection, logger: logger }
+      let(:etl) { described_class.new(connection: connection, logger: logger) }
 
       before { reset_test_env connection }
       after  { connection.close }
@@ -347,7 +393,9 @@ describe ETL do
                 id INT NOT NULL
               , name VARCHAR(10)
               , amount INT(11) DEFAULT 0
-              , PRIMARY KEY (id))]
+              , PRIMARY KEY (id)
+            )
+          ]
         end
 
         etl.before_etl do |etl|
@@ -375,34 +423,40 @@ describe ETL do
             REPLACE INTO etl_destination
             SELECT id, name, amount FROM etl_source s
             WHERE s.id >= #{lbound}
-              AND s.id <  #{ubound}]
+              AND s.id <  #{ubound}
+          ]
         end
 
         etl.after_etl do |etl|
           etl.query %[
             UPDATE etl_destination
             SET name = CONCAT("SUPER ", name)
-            WHERE id <= 1]
+            WHERE id <= 1
+          ]
         end
 
         etl.run
 
-        expect(connection
-          .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a)
-          .to eq([
+        expect(
+          connection
+            .query("SELECT * FROM etl_destination ORDER BY id ASC")
+            .to_a
+        ).to eq(
+          [
             {'id' => 1, 'name' => 'SUPER Jeff', 'amount' => 100},
             {'id' => 2, 'name' => 'Ryan',       'amount' => 50},
             {'id' => 3, 'name' => 'Jack',       'amount' => 75},
             {'id' => 4, 'name' => 'Jeff',       'amount' => 10},
             {'id' => 5, 'name' => 'Jack',       'amount' => 45},
-            {'id' => 7, 'name' => 'Nick',       'amount' => 90}])
+            {'id' => 7, 'name' => 'Nick',       'amount' => 90}
+          ]
+        )
       end
     end
 
     describe '#run over part of table' do
       let(:connection) { test_connection }
-      let(:etl)        { described_class.new connection: connection, logger: logger }
+      let(:etl) { described_class.new(connection: connection, logger: logger) }
 
       before { reset_test_env connection }
       after  { connection.close }
@@ -414,7 +468,9 @@ describe ETL do
                 id INT NOT NULL
               , name VARCHAR(10)
               , amount INT(11) DEFAULT 0
-              , PRIMARY KEY (id))]
+              , PRIMARY KEY (id)
+            )
+          ]
         end
 
         etl.before_etl do |etl|
@@ -440,23 +496,29 @@ describe ETL do
             REPLACE INTO etl_destination
             SELECT id, name, amount FROM etl_source s
             WHERE s.id >= #{lbound}
-              AND s.id <  #{ubound}]
+              AND s.id <  #{ubound}
+          ]
         end
 
         etl.run
 
-        expect(connection
+        expect(
+          connection
           .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a).to eq([
+          .to_a
+        ).to eq(
+          [
             {'id' => 4, 'name' => 'Jeff', 'amount' => 10},
             {'id' => 5, 'name' => 'Jack', 'amount' => 45},
-            {'id' => 7, 'name' => 'Nick', 'amount' => 90}])
+            {'id' => 7, 'name' => 'Nick', 'amount' => 90}
+          ]
+        )
       end
     end
 
     describe "#run over gappy data" do
       let(:connection) { test_connection }
-      let(:etl)        { described_class.new connection: connection, logger: logger }
+      let(:etl) { described_class.new(connection: connection, logger: logger) }
 
       before do
         reset_test_env(connection) do |connection|
@@ -465,7 +527,9 @@ describe ETL do
                 id INT NOT NULL
               , name VARCHAR(10)
               , amount INT(11) DEFAULT 0
-              , PRIMARY KEY (id))]
+              , PRIMARY KEY (id)
+            )
+          ]
 
           connection.query %[
             INSERT INTO etl_source (id, name, amount)
@@ -476,7 +540,8 @@ describe ETL do
               (14, 'Jeff',  10),
               (15, 'Jack',  45),
               (16, 'Nick', -90),
-              (17, 'Nick',  90)]
+              (17, 'Nick',  90)
+          ]
         end
       end
 
@@ -489,7 +554,9 @@ describe ETL do
                 id INT NOT NULL
               , name VARCHAR(10)
               , amount INT(11) DEFAULT 0
-              , PRIMARY KEY (id))]
+              , PRIMARY KEY (id)
+            )
+          ]
         end
 
         etl.before_etl do |etl|
@@ -519,27 +586,32 @@ describe ETL do
               , amount
             FROM etl_source s
             WHERE s.id >= #{lbound}
-              AND s.id <  #{ubound}]
+              AND s.id <  #{ubound}
+          ]
         end
 
         etl.run
 
-        expect(connection
+        expect(
+          connection
           .query("SELECT * FROM etl_destination ORDER BY id ASC")
-          .to_a)
-          .to eq([
+          .to_a
+        ).to eq(
+          [
             {'id' => 1,  'name' => 'Jeff', 'amount' => 100},
             {'id' => 2,  'name' => 'Ryan', 'amount' => 50},
             {'id' => 13, 'name' => 'Jack', 'amount' => 75},
             {'id' => 14, 'name' => 'Jeff', 'amount' => 10},
             {'id' => 15, 'name' => 'Jack', 'amount' => 45},
-            {'id' => 17, 'name' => 'Nick', 'amount' => 90}])
+            {'id' => 17, 'name' => 'Nick', 'amount' => 90}
+          ]
+        )
       end
     end
 
     describe "#run over date data" do
       let(:connection) { test_connection }
-      let(:etl)        { described_class.new connection: connection, logger: logger }
+      let(:etl) { described_class.new(connection: connection, logger: logger) }
 
       before do
         reset_test_env(connection) do |connection|
@@ -547,7 +619,9 @@ describe ETL do
             CREATE TABLE etl_source (
                 the_date DATE NOT NULL
               , name VARCHAR(10)
-              , amount INT(11) DEFAULT 0)]
+              , amount INT(11) DEFAULT 0
+            )
+          ]
 
           connection.query %[
             INSERT INTO etl_source (the_date, name, amount)
@@ -558,7 +632,8 @@ describe ETL do
               ('2012-01-01', 'Jeff', 10),
               ('2012-01-02', 'Jack', 45),
               ('2012-01-02', 'Nick', -90),
-              ('2012-01-02', 'Nick', 90)]
+              ('2012-01-02', 'Nick', 90)
+          ]
         end
       end
 
@@ -571,7 +646,9 @@ describe ETL do
                 the_date DATE NOT NULL
               , name VARCHAR(10)
               , total_amount INT(11) DEFAULT 0
-              , PRIMARY KEY (the_date, name))]
+              , PRIMARY KEY (the_date, name)
+            )
+          ]
         end
 
         etl.before_etl do |etl|
@@ -607,13 +684,14 @@ describe ETL do
               AND s.the_date <  '#{ubound}'
             GROUP BY
                 the_date
-              , name]
+              , name
+          ]
         end
 
         etl.run
 
-        expect(connection
-          .query(%[
+        expect(
+          connection.query(%[
             SELECT
                 the_date
               , name
@@ -623,19 +701,22 @@ describe ETL do
             ORDER BY
                 the_date ASC
               , name ASC
-          ]).to_a)
-            .to eq([
-              {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jack', 'total_amount' => 75},
-              {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jeff', 'total_amount' => 110},
-              {'the_date' => Date.parse('2012-01-01'), 'name' => 'Ryan', 'total_amount' => 50},
-              {'the_date' => Date.parse('2012-01-02'), 'name' => 'Jack', 'total_amount' => 45},
-              {'the_date' => Date.parse('2012-01-02'), 'name' => 'Nick', 'total_amount' => 90}])
+          ]).to_a
+        ).to eq(
+          [
+            {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jack', 'total_amount' => 75},
+            {'the_date' => Date.parse('2012-01-01'), 'name' => 'Jeff', 'total_amount' => 110},
+            {'the_date' => Date.parse('2012-01-01'), 'name' => 'Ryan', 'total_amount' => 50},
+            {'the_date' => Date.parse('2012-01-02'), 'name' => 'Jack', 'total_amount' => 45},
+            {'the_date' => Date.parse('2012-01-02'), 'name' => 'Nick', 'total_amount' => 90}
+          ]
+        )
       end
     end
 
     describe "#run over datetime data" do
       let(:connection) { test_connection }
-      let(:etl)        { described_class.new connection: connection, logger: logger }
+      let(:etl) { described_class.new(connection: connection, logger: logger) }
 
       before do
         reset_test_env(connection) do |connection|
@@ -643,7 +724,9 @@ describe ETL do
             CREATE TABLE etl_source (
                 the_datetime DATETIME NOT NULL
               , name VARCHAR(10)
-              , amount INT(11) DEFAULT 0)]
+              , amount INT(11) DEFAULT 0
+            )
+          ]
 
           connection.query %[
             INSERT INTO etl_source (the_datetime, name, amount)
@@ -654,7 +737,8 @@ describe ETL do
               ('2012-01-01 00:01:02', 'Jeff', 10),
               ('2012-01-02 00:02:00', 'Jack', 45),
               ('2012-01-02 00:02:01', 'Nick', -90),
-              ('2012-01-02 00:02:02', 'Nick', 90)]
+              ('2012-01-02 00:02:02', 'Nick', 90)
+          ]
         end
       end
 
@@ -667,7 +751,9 @@ describe ETL do
                 the_datetime DATETIME NOT NULL
               , name VARCHAR(10)
               , amount INT(11) DEFAULT 0
-              , PRIMARY KEY (the_datetime, name))]
+              , PRIMARY KEY (the_datetime, name)
+            )
+          ]
         end
 
         etl.before_etl do |etl|
@@ -700,13 +786,14 @@ describe ETL do
               , amount
             FROM etl_source s
             WHERE s.the_datetime >= '#{lbound}'
-              AND s.the_datetime <  '#{ubound}']
+              AND s.the_datetime <  '#{ubound}'
+          ]
         end
 
         etl.run
 
-        expect(connection
-          .query(%[
+        expect(
+          connection.query(%[
             SELECT
                 the_datetime
               , name
@@ -716,13 +803,16 @@ describe ETL do
             ORDER BY
                 the_datetime ASC
               , name ASC
-          ]).to_a)
-            .to eq([
-              {'the_datetime' => Time.parse('2012-01-01 00:01:00'), 'name' => 'Ryan', 'amount' => 50},
-              {'the_datetime' => Time.parse('2012-01-01 00:01:01'), 'name' => 'Jack', 'amount' => 75},
-              {'the_datetime' => Time.parse('2012-01-01 00:01:02'), 'name' => 'Jeff', 'amount' => 10},
-              {'the_datetime' => Time.parse('2012-01-02 00:02:00'), 'name' => 'Jack', 'amount' => 45},
-              {'the_datetime' => Time.parse('2012-01-02 00:02:02'), 'name' => 'Nick', 'amount' => 90}])
+          ]).to_a
+        ).to eq(
+          [
+            {'the_datetime' => Time.parse('2012-01-01 00:01:00'), 'name' => 'Ryan', 'amount' => 50},
+            {'the_datetime' => Time.parse('2012-01-01 00:01:01'), 'name' => 'Jack', 'amount' => 75},
+            {'the_datetime' => Time.parse('2012-01-01 00:01:02'), 'name' => 'Jeff', 'amount' => 10},
+            {'the_datetime' => Time.parse('2012-01-02 00:02:00'), 'name' => 'Jack', 'amount' => 45},
+            {'the_datetime' => Time.parse('2012-01-02 00:02:02'), 'name' => 'Nick', 'amount' => 90}
+          ]
+        )
       end
     end
   end
