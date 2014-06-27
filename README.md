@@ -45,8 +45,10 @@ or
 
 ```ruby
 # setting connection at the instance level
-etl = ETL.new(description: "a description of what this ETL does",
-              connection:  connection)
+etl = ETL.new(
+  description: "a description of what this ETL does",
+  connection:  connection
+)
 ```
 which can then be configured:
 
@@ -66,7 +68,8 @@ etl.config do |etl|
         , message VARCHAR(100) DEFAULT NULL
         , PRIMARY KEY (user_id, created_date)
         , KEY (created_date)
-      )]
+      )
+    ]
   end
 
   etl.before_etl do |etl|
@@ -102,7 +105,8 @@ etl.config do |etl|
         some_database.some_source_table sst
       GROUP BY
           sst.user_id
-        , DATE(sst.created_at)]
+        , DATE(sst.created_at)
+    ]
   end
 
   etl.after_etl do |etl|
@@ -113,7 +117,8 @@ etl.config do |etl|
     etl.query %[
       UPDATE some_database.some_destination_table
       SET message = "WOW"
-      WHERE total_amount > 100]
+      WHERE total_amount > 100
+    ]
   end
 end
 ```
@@ -135,8 +140,10 @@ while optimized, are still slow.
 Again, to kick things off:
 
 ```ruby
-etl = ETL.new(description: "a description of what this ETL does",
-              connection:  connection)
+etl = ETL.new(
+  description: "a description of what this ETL does",
+  connection:  connection
+)
 ```
 
 where `connection` is the same as described above.
@@ -160,7 +167,8 @@ etl.config do |etl|
         , message VARCHAR(100) DEFAULT NULL
         , PRIMARY KEY (user_id, created_date)
         , KEY (created_date)
-      )]
+      )
+    ]
   end
 
   etl.before_etl do |etl|
@@ -175,7 +183,8 @@ etl.config do |etl|
     #
     etl.query %[
       DELETE FROM some_database.some_source_table
-      WHERE amount < 0]
+      WHERE amount < 0
+    ]
   end
 
   etl.start do |etl|
@@ -193,7 +202,8 @@ etl.config do |etl|
     # if it is complete.
     res = etl.query %[
       SELECT COALESCE(MAX(created_date), DATE('2010-01-01')) AS the_max
-      FROM some_database.some_destination_table]
+      FROM some_database.some_destination_table
+    ]
 
     res.to_a.first['the_max']
   end
@@ -229,7 +239,8 @@ etl.config do |etl|
     #
     res = etl.query %[
       SELECT DATE(MAX(created_at)) AS the_max
-      FROM some_database.some_source_table]
+      FROM some_database.some_source_table
+    ]
 
     res.to_a.first['the_max']
   end
@@ -286,7 +297,8 @@ etl.config do |etl|
         sst.created_at >= '#{lbound}' AND sst.created_at < '#{ubound}'
       GROUP BY
           DATE(sst.created_at)
-        , sst.user_id]
+        , sst.user_id
+    ]
 
     # Note that there is no sql sanitization here so there is *potential* for SQL
     # injection. That being said you'll likely be using this gem in an internal
@@ -302,7 +314,8 @@ etl.config do |etl|
     etl.query %[
       UPDATE some_database.some_destination_table
       SET message = "WOW"
-      WHERE total_amount > 100]
+      WHERE total_amount > 100
+    ]
   end
 end
 ```
