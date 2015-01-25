@@ -19,6 +19,6 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "cane"
-  gem.add_development_dependency "mysql2"
+  gem.add_development_dependency 'mysql2', '~> 0.3.17'
   gem.add_development_dependency "rspec", [">= 2.14.0"]
 end
