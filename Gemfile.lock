@@ -17,7 +17,7 @@ GEM
     multi_json (1.7.3)
     mysql2 (0.3.17)
     parallel (0.6.1)
-    rake (10.0.3)
+    rake (13.0.1)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
